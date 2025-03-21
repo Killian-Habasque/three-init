@@ -24,6 +24,8 @@ class App {
     private initialSteeringFLRotationY: number = 0;
     private initialSteeringFRRotationY: number = 0;
 
+    private cameraOffset: THREE.Vector3 = new THREE.Vector3(0, 2, -5);
+
     constructor() {
         this.sceneSetup = new SceneSetup();
         this.sceneSetup.addPlane();
@@ -106,6 +108,9 @@ class App {
 
         if (this.keyboardControls) {
             this.keyboardControls.update();
+            const carPosition = this.keyboardControls.object.position;
+            this.sceneSetup.getCamera().position.copy(carPosition).add(this.cameraOffset);
+            this.sceneSetup.getCamera().lookAt(carPosition);
         }
 
         if (this.steeringGroupFL && this.steeringGroupFR) {
