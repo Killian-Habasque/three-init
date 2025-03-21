@@ -1,0 +1,21 @@
+{
+  "name": "three-init",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "@types/three": "^0.174.0",
+    "lil-gui": "^0.20.0",
+    "three": "^0.174.0",
+    "typescript": "^5.8.2"
+  },
+  "devDependencies": {
+    "vite": "^6.2.2"
+  }
+}
