@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import Cube from '../components/Cube';
 import Plane from '../components/Plane';
+import ModelLoader from '../components/ModelLoader';
+import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 class SceneSetup {
     scene: THREE.Scene;
@@ -33,6 +35,17 @@ class SceneSetup {
     addPlane() {
         const plane = new Plane();
         this.scene.add(plane.mesh);
+        return plane.mesh;
+    }
+
+    addModel(url: string, onLoad?: (gltf: GLTF) => void) {
+        const model = new ModelLoader();
+        model.loadModel(url).then((gltf: GLTF) => {
+            if (onLoad) {
+                onLoad(gltf);
+            }
+        });
+        return model;
     }
 
     getRenderer() {
