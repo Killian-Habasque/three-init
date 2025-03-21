@@ -3,6 +3,8 @@ import * as THREE from 'three';
 class KeyboardControls {
     private keys: { [key: string]: boolean } = {};
     private object: THREE.Object3D; 
+    private isMoving: boolean = false;
+    public isReversing: boolean = false;
 
     constructor(object: THREE.Object3D) {
         this.object = object;
@@ -20,19 +22,33 @@ class KeyboardControls {
     }
 
     update() {
-        const speed = 0.1;
+        const speed = 0.05;
+        const rotationSpeed = 0.03; 
 
-        if (this.keys['ArrowUp'] || this.keys['w']) {
-            this.object.position.z -= speed;
-        }
+        const movingKeys = [
+            this.keys['ArrowDown'],
+            this.keys['z'],
+            this.keys['ArrowUp'],
+            this.keys['s']
+        ].filter(Boolean).length;
+
+        this.isMoving = movingKeys === 1;
+
+        this.isReversing = this.keys['ArrowDown'] || this.keys['s'];
+
         if (this.keys['ArrowDown'] || this.keys['s']) {
-            this.object.position.z += speed; 
+            this.object.translateZ(-speed);
         }
-        if (this.keys['ArrowLeft'] || this.keys['a']) {
-            this.object.position.x -= speed; 
+        if (this.keys['ArrowUp'] || this.keys['z']) {
+            this.object.translateZ(speed); 
         }
-        if (this.keys['ArrowRight'] || this.keys['d']) {
-            this.object.position.x += speed; 
+        if (this.isMoving) {
+            if (this.keys['ArrowLeft'] || this.keys['q']) {
+                this.object.rotation.y += rotationSpeed; 
+            }
+            if (this.keys['ArrowRight'] || this.keys['d']) {
+                this.object.rotation.y -= rotationSpeed;  
+            }
         }
     }
 }
