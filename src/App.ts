@@ -33,6 +33,12 @@ class App {
 
         this.sceneSetup.addModel('./src/models/car/scene.glb', (gltf: GLTF) => {
             const carMesh = gltf.scene;
+            carMesh.traverse((node) => {
+                if (node instanceof THREE.Mesh) {
+                    node.castShadow = true;
+                    node.receiveShadow = true;
+                }
+            });
             this.sceneSetup.scene.add(carMesh);
 
             this.steeringGroupFL = new THREE.Group();
