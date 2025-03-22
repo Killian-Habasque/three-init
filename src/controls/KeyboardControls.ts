@@ -2,53 +2,48 @@ import * as THREE from 'three';
 
 class KeyboardControls {
     private keys: { [key: string]: boolean } = {};
-    private object: THREE.Object3D; 
-    private isMoving: boolean = false;
+    private object: THREE.Object3D;
+    private velocity: number = 0;
+    private acceleration: number = 0.002; 
+    private maxSpeed: number = 0.2;
+    private friction: number = 0.98;
+    private rotationSpeedFactor: number = 0.25;
     public isReversing: boolean = false;
 
     constructor(object: THREE.Object3D) {
         this.object = object;
-
         window.addEventListener('keydown', (event) => this.onKeyDown(event));
         window.addEventListener('keyup', (event) => this.onKeyUp(event));
     }
 
     private onKeyDown(event: KeyboardEvent) {
-        this.keys[event.key] = true; 
+        this.keys[event.key] = true;
     }
 
     private onKeyUp(event: KeyboardEvent) {
-        this.keys[event.key] = false; 
+        this.keys[event.key] = false;
     }
 
     update() {
-        const speed = 0.05;
-        const rotationSpeed = 0.03; 
-
-        const movingKeys = [
-            this.keys['ArrowDown'],
-            this.keys['z'],
-            this.keys['ArrowUp'],
-            this.keys['s']
-        ].filter(Boolean).length;
-
-        this.isMoving = movingKeys === 1;
-
-        this.isReversing = this.keys['ArrowDown'] || this.keys['s'];
-
-        if (this.keys['ArrowDown'] || this.keys['s']) {
-            this.object.translateZ(-speed);
-        }
         if (this.keys['ArrowUp'] || this.keys['z']) {
-            this.object.translateZ(speed); 
+            this.velocity += this.acceleration;
+        } else if (this.keys['ArrowDown'] || this.keys['s']) {
+            this.velocity -= this.acceleration;
+            this.isReversing = true;
+        } else {
+            this.isReversing = false;
         }
-        if (this.isMoving) {
-            if (this.keys['ArrowLeft'] || this.keys['q']) {
-                this.object.rotation.y += rotationSpeed; 
-            }
-            if (this.keys['ArrowRight'] || this.keys['d']) {
-                this.object.rotation.y -= rotationSpeed;  
-            }
+
+        this.velocity = Math.max(-this.maxSpeed, Math.min(this.velocity * this.friction, this.maxSpeed));
+
+        this.object.translateZ(this.velocity);
+
+        const rotationSpeed = Math.abs(this.velocity) * this.rotationSpeedFactor;
+        if (this.keys['ArrowLeft'] || this.keys['q']) {
+            this.object.rotation.y += rotationSpeed;
+        }
+        if (this.keys['ArrowRight'] || this.keys['d']) {
+            this.object.rotation.y -= rotationSpeed;
         }
     }
 }
