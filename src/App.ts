@@ -12,8 +12,8 @@ class App {
     private controls: CameraControls;
     private clock = new THREE.Clock();
 
-    private keyboardControls: KeyboardControls | null = null;  
-    
+    private keyboardControls: KeyboardControls | null = null;
+
     private cameraOffset: THREE.Vector3 = new THREE.Vector3(0, 2, -5);
 
     private world: CANNON.World;
@@ -59,7 +59,16 @@ class App {
                 steeringGroupFR.add(wheelFR);
                 wheelFR.position.set(0, 0, 0);
             }
-            this.keyboardControls = new KeyboardControls(carMesh, wheelFL, wheelFR, wheelRL, wheelRR, steeringGroupFL, steeringGroupFR);
+
+            const carShape = new CANNON.Box(new CANNON.Vec3(0.6, 0.5, 1.05));
+            const carBody = new CANNON.Body({ mass: 1 });
+            carBody.addShape(carShape);
+            carBody.position.set(0, 1, 0);
+            this.world.addBody(carBody);
+
+            carMesh.position.copy(carBody.position);
+
+            this.keyboardControls = new KeyboardControls(carMesh, wheelFL, wheelFR, wheelRL, wheelRR, steeringGroupFL, steeringGroupFR, carBody);
         });
 
         // this.sceneSetup.addModel('./src/models/map/low_poly_city.glb', (gltf: GLTF) => {
@@ -119,9 +128,6 @@ class App {
         if (this.keyboardControls) {
             this.keyboardControls.update();
             this.keyboardControls.updateWheels(delta);
-            // const carPosition = this.keyboardControls.object.position;
-            // this.sceneSetup.getCamera().position.copy(carPosition).add(this.cameraOffset);
-            // this.sceneSetup.getCamera().lookAt(carPosition);
         }
 
         this.world.step(delta);

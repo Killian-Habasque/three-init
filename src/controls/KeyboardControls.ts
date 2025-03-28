@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import * as CANNON from 'cannon-es';
 
 class KeyboardControls {
     private keys: { [key: string]: boolean } = {};
@@ -17,8 +18,9 @@ class KeyboardControls {
     private steeringGroupFR: THREE.Group;
     private initialSteeringFLRotationY: number = 0;
     private initialSteeringFRRotationY: number = 0;
+    private carBody: CANNON.Body;
 
-    constructor(object: THREE.Object3D, wheelFL: THREE.Object3D, wheelFR: THREE.Object3D, wheelRL: THREE.Object3D, wheelRR: THREE.Object3D, steeringGroupFL: THREE.Group, steeringGroupFR: THREE.Group) {
+    constructor(object: THREE.Object3D, wheelFL: THREE.Object3D, wheelFR: THREE.Object3D, wheelRL: THREE.Object3D, wheelRR: THREE.Object3D, steeringGroupFL: THREE.Group, steeringGroupFR: THREE.Group, carBody: CANNON.Body) {
         this.object = object;
         this.wheelFL = wheelFL;
         this.wheelFR = wheelFR;
@@ -26,6 +28,7 @@ class KeyboardControls {
         this.wheelRR = wheelRR;
         this.steeringGroupFL = steeringGroupFL;
         this.steeringGroupFR = steeringGroupFR;
+        this.carBody = carBody;
         window.addEventListener('keydown', (event) => this.onKeyDown(event));
         window.addEventListener('keyup', (event) => this.onKeyUp(event));
     }
@@ -40,26 +43,41 @@ class KeyboardControls {
 
     update() {
         if (this.keys['ArrowUp'] || this.keys['z']) {
-            this.velocity += this.acceleration;
-        } else if (this.keys['ArrowDown'] || this.keys['s']) {
             this.velocity -= this.acceleration;
+        } else if (this.keys['ArrowDown'] || this.keys['s']) {
+            this.velocity += this.acceleration;
             this.isReversing = true;
         } else {
             this.isReversing = false;
         }
-
+    
         this.velocity = Math.max(-this.maxSpeed, Math.min(this.velocity * this.friction, this.maxSpeed));
-
-        this.object.translateZ(this.velocity);
-
+    
+        const forward = new CANNON.Vec3(0, 0, -1);
+        const rotatedForward = new CANNON.Quaternion();
+        rotatedForward.copy(this.carBody.quaternion);
+        rotatedForward.vmult(forward, forward);
+    
+        this.carBody.position.x += forward.x * this.velocity;
+        this.carBody.position.z += forward.z * this.velocity;
+    
         const rotationSpeed = Math.abs(this.velocity) * this.rotationSpeedFactor;
+        const turnQuaternion = new CANNON.Quaternion();
+        
         if (this.keys['ArrowLeft'] || this.keys['q']) {
-            this.object.rotation.y += rotationSpeed;
+            turnQuaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), rotationSpeed);
+            this.carBody.quaternion = this.carBody.quaternion.mult(turnQuaternion);
         }
         if (this.keys['ArrowRight'] || this.keys['d']) {
-            this.object.rotation.y -= rotationSpeed;
+            turnQuaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), -rotationSpeed);
+            this.carBody.quaternion = this.carBody.quaternion.mult(turnQuaternion);
         }
+    
+        this.object.position.copy(this.carBody.position);
+        this.object.position.y -= 0.48;
+        this.object.quaternion.copy(this.carBody.quaternion);
     }
+    
 
     updateWheels(delta: number) {
         const wheelRotationSpeed = this.velocity * delta * 350;
