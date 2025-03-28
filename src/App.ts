@@ -70,6 +70,14 @@ class App {
             this.keyboardControls = new KeyboardControls(carMesh);
         });
 
+        this.sceneSetup.addModel('./src/models/map/low_poly_city.glb', (gltf: GLTF) => {
+            const map = gltf.scene;
+            map.position.set(0, -3.4, 0);
+            map.scale.set(0.65, 0.65, 0.65);
+            map.rotation.set(0, Math.PI / 2, 0);
+            this.sceneSetup.scene.add(map);
+        });
+
         this.controls = new CameraControls(this.sceneSetup.getCamera(), this.sceneSetup.getRenderer().domElement);
 
         window.addEventListener('resize', this.onWindowResize.bind(this));
