@@ -14,18 +14,41 @@ class App {
 
     private keyboardControls: KeyboardControls | null = null;
 
-    private cameraOffset: THREE.Vector3 = new THREE.Vector3(0, 2, -5);
+    private cameraOffset: THREE.Vector3 = new THREE.Vector3(0, 6, -7);
 
     private world: CANNON.World;
     private cubeBody: CANNON.Body;
     private planeBody: CANNON.Body;
     private cubeMesh: THREE.Mesh;
     private debugger: CannonDebugger;
+    private carMesh2: THREE.Object3D;
+    private carBody2: CANNON.Body;
 
     constructor() {
         this.sceneSetup = new SceneSetup();
-        this.sceneSetup.addPlane();
+        // this.sceneSetup.addPlane();
         this.sceneSetup.addDirectionalLight();
+
+        this.sceneSetup.addModel('./src/models/car/scene.glb', (gltf: GLTF) => {
+            this.carMesh2 = gltf.scene;
+            this.carMesh2.traverse((node) => {
+                if (node instanceof THREE.Mesh) {
+                    node.castShadow = true;
+                    node.receiveShadow = true;
+                }
+            });
+            this.sceneSetup.scene.add(this.carMesh2);
+
+            const carShape = new CANNON.Box(new CANNON.Vec3(0.6, 0.5, 1.05));
+            this.carBody2 = new CANNON.Body({ mass: 1 });
+            this.carBody2.addShape(carShape);
+            this.carBody2.position.set(5, 0, 0);
+            this.world.addBody(this.carBody2);
+
+            this.carMesh2.position.copy(this.carBody2.position);
+            this.carMesh2.quaternion.copy(this.carBody2.quaternion);
+            // ajout un fonction pour l'avoir dans update
+        });
 
         this.sceneSetup.addModel('./src/models/car/scene.glb', (gltf: GLTF) => {
             const carMesh = gltf.scene;
@@ -71,24 +94,67 @@ class App {
             this.keyboardControls = new KeyboardControls(carMesh, wheelFL, wheelFR, wheelRL, wheelRR, steeringGroupFL, steeringGroupFR, carBody);
         });
 
-        // this.sceneSetup.addModel('./src/models/map/low_poly_city.glb', (gltf: GLTF) => {
-        //     const map = gltf.scene;
-        //     map.position.set(0, -3.4, 0);
-        //     map.scale.set(0.65, 0.65, 0.65);
-        //     map.rotation.set(0, Math.PI / 2, 0);
-        //     this.sceneSetup.scene.add(map);
-        // });
+        this.sceneSetup.addModel('./src/models/map/scene_min.glb', (gltf: GLTF) => {
+            const map = gltf.scene;
+            map.position.set(0, -3.4, 0);
+            map.scale.set(0.65, 0.65, 0.65);
+            map.rotation.set(0, Math.PI / 2, 0);
+            map.traverse((child) => {
+                if (child instanceof THREE.Mesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+            this.sceneSetup.scene.add(map);
+        });
 
         this.controls = new CameraControls(this.sceneSetup.getCamera(), this.sceneSetup.getRenderer().domElement);
 
         this.world = new CANNON.World();
         this.world.gravity.set(0, -9.82, 0);
 
-        const planeGeometry = new THREE.PlaneGeometry(25, 25);
-        const planeMesh = new THREE.Mesh(planeGeometry, new THREE.MeshPhongMaterial());
-        planeMesh.rotateX(-Math.PI / 2);
-        planeMesh.receiveShadow = true;
-        this.sceneSetup.scene.add(planeMesh);
+        // const planeGeometry = new THREE.PlaneGeometry(40, 40);
+        // const planeMesh = new THREE.Mesh(planeGeometry, new THREE.MeshPhongMaterial());
+        // planeMesh.rotateX(-Math.PI / 2);
+        // planeMesh.position.z = -6;
+        // planeMesh.receiveShadow = true;
+        // this.sceneSetup.scene.add(planeMesh);
+
+        const cubeShape2 = new CANNON.Box(new CANNON.Vec3(11, 4, 4));
+        const cubeBody2 = new CANNON.Body({ mass: 0 });
+        cubeBody2.addShape(cubeShape2);
+        cubeBody2.position.set(1.5, 4, 6);
+        this.world.addBody(cubeBody2);
+
+        const cubeShapePark = new CANNON.Box(new CANNON.Vec3(11, 4, 9));
+        const cubeBodyPark = new CANNON.Body({ mass: 0 });
+        cubeBodyPark.addShape(cubeShapePark);
+        cubeBodyPark.position.set(1.5, 4, -12);
+        this.world.addBody(cubeBodyPark);
+
+        const cubeShapeRight = new CANNON.Box(new CANNON.Vec3(20, 4, 2));
+        const cubeBodyRight = new CANNON.Body({ mass: 0 });
+        cubeBodyRight.addShape(cubeShapeRight);
+        cubeBodyRight.position.set(1.5, 4, 16);
+        this.world.addBody(cubeBodyRight);
+
+        const cubeShapeLeft = new CANNON.Box(new CANNON.Vec3(20, 4, 2));
+        const cubeBodyLeft = new CANNON.Body({ mass: 0 });
+        cubeBodyLeft.addShape(cubeShapeLeft);
+        cubeBodyLeft.position.set(1.5, 4, -27);
+        this.world.addBody(cubeBodyLeft);
+
+        const cubeShape3 = new CANNON.Box(new CANNON.Vec3(4, 4, 30));
+        const cubeBody3 = new CANNON.Body({ mass: 0 });
+        cubeBody3.addShape(cubeShape3);
+        cubeBody3.position.set(21, 4, -15);
+        this.world.addBody(cubeBody3);
+
+        const cubeShape4 = new CANNON.Box(new CANNON.Vec3(4, 4, 30));
+        const cubeBody4 = new CANNON.Body({ mass: 0 });
+        cubeBody4.addShape(cubeShape4);
+        cubeBody4.position.set(-18, 4, -15);
+        this.world.addBody(cubeBody4);
 
         const planeShape = new CANNON.Plane();
         this.planeBody = new CANNON.Body({ mass: 0 });
@@ -128,8 +194,15 @@ class App {
         if (this.keyboardControls) {
             this.keyboardControls.update();
             this.keyboardControls.updateWheels(delta);
+            const carPosition = this.keyboardControls.object.position;
+            this.sceneSetup.getCamera().position.copy(carPosition).add(this.cameraOffset);
+            this.sceneSetup.getCamera().lookAt(carPosition);
         }
-
+        if (this.carMesh2) {
+            this.carMesh2.position.copy(this.carBody2.position);
+            this.carMesh2.position.y -= 0.48;
+            this.carMesh2.quaternion.copy(this.carBody2.quaternion);
+        }
         const fixedTimeStep = 1 / 60;
         const maxSubSteps = 5;
         this.world.step(fixedTimeStep, delta, maxSubSteps);
