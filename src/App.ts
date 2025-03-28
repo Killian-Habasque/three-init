@@ -130,7 +130,9 @@ class App {
             this.keyboardControls.updateWheels(delta);
         }
 
-        this.world.step(delta);
+        const fixedTimeStep = 1 / 60;
+        const maxSubSteps = 5;
+        this.world.step(fixedTimeStep, delta, maxSubSteps);
 
         this.cubeMesh.position.set(this.cubeBody.position.x, this.cubeBody.position.y, this.cubeBody.position.z);
         this.cubeMesh.quaternion.set(this.cubeBody.quaternion.x, this.cubeBody.quaternion.y, this.cubeBody.quaternion.z, this.cubeBody.quaternion.w);
