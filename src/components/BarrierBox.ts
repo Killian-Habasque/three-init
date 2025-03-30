@@ -1,6 +1,6 @@
 import * as CANNON from 'cannon-es';
 
-class BarrierBlock {
+class BarrierBox {
     public body: CANNON.Body;
 
     constructor(position: CANNON.Vec3, size: CANNON.Vec3) {
@@ -11,4 +11,4 @@ class BarrierBlock {
     }
 }
 
-export default BarrierBlock; 
+export default BarrierBox; 
