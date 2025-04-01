@@ -10,6 +10,7 @@ class SceneSetup {
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
     renderer: THREE.WebGLRenderer;
+    private directionalLight: THREE.DirectionalLight;
 
     constructor() {
         this.scene = new THREE.Scene();
@@ -23,23 +24,23 @@ class SceneSetup {
     }
 
     addDirectionalLight() {
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
-        directionalLight.position.set(2, 12, 2);
+        this.directionalLight = new THREE.DirectionalLight(0xffffff, 3);
+        this.directionalLight.position.set(2, 12, 2);
         
-        enableShadowForLight(directionalLight);
+        enableShadowForLight(this.directionalLight);
         
-        this.scene.add(directionalLight);
+        this.scene.add(this.directionalLight);
         
-        const lightHelper = new DirectionalLightHelper(directionalLight, 5);
-        this.scene.add(lightHelper);
+        // const lightHelper = new DirectionalLightHelper(this.directionalLight, 5);
+        // this.scene.add(lightHelper);
         
-        directionalLight.target.position.set(0, 0, 0);
-        this.scene.add(directionalLight.target);
+        this.directionalLight.target.position.set(0, 0, 0);
+        this.scene.add(this.directionalLight.target);
         
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         this.scene.add(ambientLight);
         
-        return directionalLight;
+        return this.directionalLight;
     }
 
     addCube() {
@@ -74,6 +75,10 @@ class SceneSetup {
 
     getScene() {
         return this.scene;
+    }
+
+    getDirectionalLight() {
+        return this.directionalLight;
     }
 }
 

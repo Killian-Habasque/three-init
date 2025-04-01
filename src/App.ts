@@ -10,6 +10,7 @@ import Car from './components/Car';
 import BarrierPlane from './components/BarrierPlane';
 import Cube from './components/Cube'; 
 import * as CANNON from 'cannon-es';
+import AppGUI from './helpers/GUI';
 
 class App {
     private sceneSetup: SceneSetup;
@@ -23,6 +24,7 @@ class App {
     private carsBot: Car[] = [];
     private car: Car | undefined;
     private cube: Cube;
+    private cameraFollowEnabled: boolean = true;
 
     constructor() {
         this.sceneSetup = new SceneSetup();
@@ -33,7 +35,7 @@ class App {
         this.physics = new Physics();
 
         // Cars
-        this.sceneSetup.addModel('./src/assets/models/car/scene.glb', (gltf: GLTF) => {
+        const carTest = this.sceneSetup.addModel('./src/assets/models/car/scene.glb', (gltf: GLTF) => {
             const carPosition = new CANNON.Vec3(5, 1, 0);
             const car = new Car(gltf, carPosition, false);
             this.carsBot.push(car);
@@ -85,6 +87,10 @@ class App {
         this.physics.world.addBody(this.cube.body); 
 
         this.debugger = new CannonDebugger(this.sceneSetup.scene, this.physics.world);
+        
+        const appGUI = new AppGUI(this.sceneSetup.getDirectionalLight(), this.debugger, (value: boolean) => {
+            this.cameraFollowEnabled = value;
+        });
 
         window.addEventListener('resize', this.onWindowResize.bind(this));
         this.sceneSetup.getRenderer().setAnimationLoop(this.animate.bind(this));
@@ -106,9 +112,11 @@ class App {
         if (this.car) {
             this.car.update();
             this.car.updateWheels(delta);
-            const carPosition = this.car.mesh.position; 
-            this.sceneSetup.getCamera().position.copy(carPosition).add(this.cameraOffset);
-            this.sceneSetup.getCamera().lookAt(carPosition);
+            if (this.cameraFollowEnabled) {
+                const carPosition = this.car.mesh.position; 
+                this.sceneSetup.getCamera().position.copy(carPosition).add(this.cameraOffset);
+                this.sceneSetup.getCamera().lookAt(carPosition);
+            }
         }
 
         this.carsBot.forEach(carBot => {
@@ -117,7 +125,9 @@ class App {
 
         this.cube.update();
 
-        this.debugger.update();
+        if (this.debugger.enabled) {
+            this.debugger.update();
+        }
 
         this.sceneSetup.getRenderer().render(this.sceneSetup.getScene(), this.sceneSetup.getCamera());
     }
