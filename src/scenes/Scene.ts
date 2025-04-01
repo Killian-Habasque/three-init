@@ -3,11 +3,14 @@ import Cube from '../components/Cube';
 import Plane from '../components/Plane';
 import ModelLoader from '../components/ModelLoader';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DirectionalLightHelper } from 'three';
+import { enableShadowForLight } from '../lib/shadow';
 
 class SceneSetup {
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
     renderer: THREE.WebGLRenderer;
+    private directionalLight: THREE.DirectionalLight;
 
     constructor() {
         this.scene = new THREE.Scene();
@@ -21,25 +24,23 @@ class SceneSetup {
     }
 
     addDirectionalLight() {
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(2, 5, 2);
-        directionalLight.castShadow = true;
+        this.directionalLight = new THREE.DirectionalLight(0xffffff, 3);
+        this.directionalLight.position.set(2, 12, 2);
         
-        directionalLight.shadow.mapSize.width = 2048;
-        directionalLight.shadow.mapSize.height = 2048;
-        directionalLight.shadow.camera.near = 0.5;
-        directionalLight.shadow.camera.far = 50;
-        directionalLight.shadow.camera.left = -10;
-        directionalLight.shadow.camera.right = 10;
-        directionalLight.shadow.camera.top = 10;
-        directionalLight.shadow.camera.bottom = -10;
+        enableShadowForLight(this.directionalLight);
         
-        this.scene.add(directionalLight);
+        this.scene.add(this.directionalLight);
+        
+        // const lightHelper = new DirectionalLightHelper(this.directionalLight, 5);
+        // this.scene.add(lightHelper);
+        
+        this.directionalLight.target.position.set(0, 0, 0);
+        this.scene.add(this.directionalLight.target);
         
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         this.scene.add(ambientLight);
         
-        return directionalLight;
+        return this.directionalLight;
     }
 
     addCube() {
@@ -74,6 +75,10 @@ class SceneSetup {
 
     getScene() {
         return this.scene;
+    }
+
+    getDirectionalLight() {
+        return this.directionalLight;
     }
 }
 

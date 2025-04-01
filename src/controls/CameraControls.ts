@@ -6,7 +6,7 @@ class CameraControls {
 
     constructor(camera: THREE.PerspectiveCamera, rendererDomElement: HTMLElement) {
         this.controls = new OrbitControls(camera, rendererDomElement);
-        camera.position.set(0, 2, 5);
+        camera.position.set(0, 20, 20);
         this.controls.update();
     }
 
