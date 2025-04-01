@@ -102,10 +102,10 @@ class Car {
     updateWheels(delta: number) {
         const wheelRotationSpeed = this.velocity * delta * 350;
 
-        if (this.wheelFL) this.wheelFL.rotation.x += wheelRotationSpeed;
-        if (this.wheelFR) this.wheelFR.rotation.x += wheelRotationSpeed;
-        if (this.wheelRL) this.wheelRL.rotation.x += wheelRotationSpeed;
-        if (this.wheelRR) this.wheelRR.rotation.x += wheelRotationSpeed;
+        if (this.wheelFL) this.wheelFL.rotation.x -= wheelRotationSpeed;
+        if (this.wheelFR) this.wheelFR.rotation.x -= wheelRotationSpeed;
+        if (this.wheelRL) this.wheelRL.rotation.x -= wheelRotationSpeed;
+        if (this.wheelRR) this.wheelRR.rotation.x -= wheelRotationSpeed;
 
         if (this.steeringGroupFL && this.steeringGroupFR) {
             const maxSteeringAngle = Math.PI / 6;
