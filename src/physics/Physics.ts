@@ -9,7 +9,9 @@ class Physics {
     }
 
     update(delta: number) {
-        this.world.step(delta);
+        const fixedTimeStep = 1 / 60;
+        const maxSubSteps = 5;
+        this.world.step(fixedTimeStep, delta, maxSubSteps);
     }
 }
 
