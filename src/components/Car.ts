@@ -15,11 +15,11 @@ class Car {
     public steeringGroupFR: THREE.Group | null = null;
 
     private keyboardControls: KeyboardControls | null = null;
-    private velocity: number = 0;
-    private acceleration: number = 0.002;
-    private maxSpeed: number = 0.2;
-    private friction: number = 0.98;
-    private rotationSpeedFactor: number = 0.25;
+    public velocity: number = 0.02;
+    public acceleration: number = 0.002;
+    public maxSpeed: number = 0.2;
+    public friction: number = 0.98;
+    public rotationSpeedFactor: number = 0.25;
     public isReversing: boolean = false;
 
     constructor(gltf: GLTF, position: CANNON.Vec3, enableControls: boolean = true) {
@@ -30,10 +30,12 @@ class Car {
         this.body = new CANNON.Body({ mass: 1 });
         this.body.addShape(carShape);
         this.body.position.copy(position);
-
+        this.body.quaternion.setFromEuler(0, Math.PI / 2, 0);
+        this.body.userData = { type: 'car' };
         if (enableControls) {
             this.keyboardControls = new KeyboardControls();
         }
+
     }
 
     setupWheels() {
@@ -63,18 +65,18 @@ class Car {
 
     update() {
         this.velocity = Math.max(-this.maxSpeed, Math.min(this.velocity * this.friction, this.maxSpeed));
-    
+
         const forward = new CANNON.Vec3(0, 0, -1);
         const rotatedForward = new CANNON.Quaternion();
         rotatedForward.copy(this.body.quaternion);
         rotatedForward.vmult(forward, forward);
-    
+
         this.body.position.x += forward.x * this.velocity;
         this.body.position.z += forward.z * this.velocity;
-    
+
         const rotationSpeed = Math.abs(this.velocity) * this.rotationSpeedFactor;
         const turnQuaternion = new CANNON.Quaternion();
-        
+
         if (this.keyboardControls) {
             if (this.keyboardControls.isKeyPressed('ArrowUp') || this.keyboardControls.isKeyPressed('z')) {
                 this.velocity -= this.acceleration;
