@@ -36,7 +36,7 @@ class App {
         this.physics = new Physics();
 
         // Cars
-        this.sceneSetup.addModel('./src/assets/models/car/scene.glb', (gltf: GLTF) => {
+        this.sceneSetup.addModel('/assets/models/car/scene.glb', (gltf: GLTF) => {
             const carPosition = new CANNON.Vec3(0, 1, 1.5);
             this.car = new Car(gltf, carPosition, true);
             this.car.setupWheels();
@@ -45,7 +45,7 @@ class App {
         });
 
 
-        this.sceneSetup.addModel('./src/assets/models/car/scene.glb', (gltf: GLTF) => {
+        this.sceneSetup.addModel('/assets/models/car/scene.glb', (gltf: GLTF) => {
             const waypoints = [
                 new THREE.Vector3(14, 1, 1),
                 new THREE.Vector3(14, 1, 10.5),
@@ -61,7 +61,7 @@ class App {
         });
 
 
-        this.sceneSetup.addModel('./src/assets/models/car/scene.glb', (gltf: GLTF) => {
+        this.sceneSetup.addModel('/assets/models/car/scene.glb', (gltf: GLTF) => {
             const waypoints = [
                 new THREE.Vector3(16, 1, 1),
                 new THREE.Vector3(16, 1, -24),
@@ -76,7 +76,7 @@ class App {
             this.sceneSetup.scene.add(car.mesh);
         });
 
-        this.sceneSetup.addModel('./src/assets/models/car/scene.glb', (gltf: GLTF) => {
+        this.sceneSetup.addModel('/assets/models/car/scene.glb', (gltf: GLTF) => {
             const waypoints = [
                 new THREE.Vector3(-10.5, 1, -1.5),
                 new THREE.Vector3(-10.5, 1, -22),
@@ -92,7 +92,7 @@ class App {
         });
         
         // Map
-        this.sceneSetup.addModel('./src/assets/models/map/scene_min.glb', (gltf: GLTF) => {
+        this.sceneSetup.addModel('/assets/models/map/scene_min.glb', (gltf: GLTF) => {
             const map = gltf.scene;
             map.position.set(0, -3.4, 0);
             map.scale.set(0.65, 0.65, 0.65);
