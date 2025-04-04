@@ -14,7 +14,7 @@ class SceneSetup {
 
     constructor() {
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x87CEEB);
+        this.scene.background = new THREE.Color(0xfdc38e);
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -25,7 +25,7 @@ class SceneSetup {
     }
 
     addDirectionalLight() {
-        this.directionalLight = new THREE.DirectionalLight(0xffffff, 3);
+        this.directionalLight = new THREE.DirectionalLight(0xfbff8d, 3);
         this.directionalLight.position.set(2, 12, 2);
         
         enableShadowForLight(this.directionalLight);

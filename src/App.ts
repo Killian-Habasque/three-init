@@ -13,6 +13,8 @@ import * as CANNON from 'cannon-es';
 import AppGUI from './helpers/GUI';
 import BotCar from './components/BotCar';
 
+const showGUI = import.meta.env.VITE_SHOW_GUI === 'false';
+
 class App {
     private sceneSetup: SceneSetup;
     private controls: CameraControls;
@@ -21,7 +23,7 @@ class App {
     private cameraOffset: THREE.Vector3 = new THREE.Vector3(0, 6, -7);
 
     private physics: Physics;
-    private debugger: CannonDebugger;
+    private debugger: CannonDebugger | undefined;
     private botsCar: BotCar[] = [];
     private car: Car | undefined;
     // private cube: Cube;
@@ -69,7 +71,6 @@ class App {
                 new THREE.Vector3(-13, 1, 1),
                 new THREE.Vector3(-13, 1, 1)
             ];
-
             const car = new BotCar(gltf, new CANNON.Vec3(10, 1, 1), waypoints);
             this.botsCar.push(car);
             this.physics.world.addBody(car.body);
@@ -115,9 +116,6 @@ class App {
             this.physics.world.addBody(barrierBox.body);
         });
 
-
-
-
         // Barrier plane
         const barrierPlane = new BarrierPlane();
         this.physics.world.addBody(barrierPlane.body);
@@ -129,11 +127,13 @@ class App {
         // this.sceneSetup.scene.add(this.cube.mesh);
         // this.physics.world.addBody(this.cube.body); 
 
-        this.debugger = new CannonDebugger(this.sceneSetup.scene, this.physics.world);
-
-        const appGUI = new AppGUI(this.sceneSetup.getDirectionalLight(), this.debugger, (value: boolean) => {
-            this.cameraFollowEnabled = value;
-        });
+        if (showGUI) {
+            this.debugger = new CannonDebugger(this.sceneSetup.scene, this.physics.world);
+            
+            const appGUI = new AppGUI(this.sceneSetup.getDirectionalLight(), this.debugger, (value: boolean) => {
+                this.cameraFollowEnabled = value;
+            });
+        }
 
         window.addEventListener('resize', this.onWindowResize.bind(this));
         this.sceneSetup.getRenderer().setAnimationLoop(this.animate.bind(this));
@@ -148,7 +148,7 @@ class App {
 
     animate() {
         this.controls.update();
-        const delta = this.clock.getDelta();
+        const delta = 1 / 60;
 
         this.physics.update(delta);
 
@@ -168,7 +168,7 @@ class App {
 
         // this.cube.update();
 
-        if (this.debugger.enabled) {
+        if (this.debugger && this.debugger.enabled) {
             this.debugger.update();
         }
 
