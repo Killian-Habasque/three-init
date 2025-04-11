@@ -42,7 +42,26 @@ class App {
 
         this.physics = new Physics();
 
-        // Cars
+        this.addCar()
+        this.addMap()
+        this.addCarBot(0);
+        this.addCarBot(1);
+        this.addCarBot(2);
+
+
+        if (showGUI) {
+            this.debugger = new CannonDebugger(this.sceneSetup.scene, this.physics.world);
+
+            const appGUI = new AppGUI(this.sceneSetup.getDirectionalLight(), this.debugger, (value: boolean) => {
+                this.cameraFollowEnabled = value;
+            });
+        }
+
+        window.addEventListener('resize', this.onWindowResize.bind(this));
+        this.sceneSetup.getRenderer().setAnimationLoop(this.animate.bind(this));
+    }
+
+    private addCar() {
         this.sceneSetup.addModel('/assets/models/car/scene.glb', (gltf: GLTF) => {
             const carPosition = new CANNON.Vec3(0, 1, 1.5);
             this.car = new Car(gltf, carPosition, true, this.score);
@@ -51,10 +70,8 @@ class App {
             this.sceneSetup.scene.add(this.car.mesh);
         });
 
-
-        this.addCarBot(0);
-        this.addCarBot(1);
-        this.addCarBot(2);
+    }
+    private addMap() {
         // Map
         this.sceneSetup.addModel('/assets/models/map/scene_min.glb', (gltf: GLTF) => {
             const map = gltf.scene;
@@ -75,31 +92,13 @@ class App {
             { position: new CANNON.Vec3(-18, 4, -15), size: new CANNON.Vec3(4, 4, 30) }
         ];
         barriers.forEach(barrier => {
-            const barrierBox = new BarrierBox(barrier.position, barrier.size);
+            const barrierBox = new BarrierBox(barrier.position, barrier.size, this.score);
             this.physics.world.addBody(barrierBox.body);
         });
 
         // Barrier plane
         const barrierPlane = new BarrierPlane();
         this.physics.world.addBody(barrierPlane.body);
-
-        if (showGUI) {
-            this.debugger = new CannonDebugger(this.sceneSetup.scene, this.physics.world);
-
-            const appGUI = new AppGUI(this.sceneSetup.getDirectionalLight(), this.debugger, (value: boolean) => {
-                this.cameraFollowEnabled = value;
-            });
-        }
-
-        window.addEventListener('resize', this.onWindowResize.bind(this));
-        this.sceneSetup.getRenderer().setAnimationLoop(this.animate.bind(this));
-    }
-
-    onWindowResize() {
-        const camera = this.sceneSetup.getCamera();
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        this.sceneSetup.getRenderer().setSize(window.innerWidth, window.innerHeight);
     }
 
     private addCarBot(index?: number | undefined) {
@@ -156,10 +155,8 @@ class App {
         this.controls.update();
         const delta = this.clock.getDelta();
         this.physics.update(delta);
-
-
         const currentScore = this.score.getScore();
-        if (currentScore >= 10 && currentScore % 10 === 0 && currentScore > this.lastBotAddedAtScore) {
+        if (currentScore >= 5 && currentScore % 5 === 0 && currentScore > this.lastBotAddedAtScore) {
             console.log("New bot !!!")
             this.addCarBot();
             this.lastBotAddedAtScore = currentScore;
@@ -167,7 +164,6 @@ class App {
             const waveNumber = this.score.getWave();
             this.waveNotification.show(`Wave ${waveNumber}: New bot appears !`);
         }
-
         if (this.car) {
             this.car.update(delta);
             this.car.updateWheels(delta);
@@ -177,18 +173,21 @@ class App {
                 this.sceneSetup.getCamera().lookAt(carPosition);
             }
         }
-
         this.botsCar.forEach(carBot => {
             carBot.update(delta);
         });
 
-        // this.cube.update();
-
         if (this.debugger && this.debugger.enabled) {
             this.debugger.update();
         }
-
         this.sceneSetup.getRenderer().render(this.sceneSetup.getScene(), this.sceneSetup.getCamera());
+    }
+
+    onWindowResize() {
+        const camera = this.sceneSetup.getCamera();
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        this.sceneSetup.getRenderer().setSize(window.innerWidth, window.innerHeight);
     }
 }
 
