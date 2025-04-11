@@ -7,8 +7,8 @@ import Score from './Score';
 class BotCar extends Car {
     private waypoints: THREE.Vector3[];
     private currentWaypointIndex: number = 0;
-    public velocity: number = 0.05;
-    private isStopped: boolean = false; 
+    public velocity: number = 3;
+    private isStopped: boolean = false;
     public score: Score;
     private lastCollisionTime: number = 0;
 
@@ -25,38 +25,38 @@ class BotCar extends Car {
 
             if (currentTime - this.lastCollisionTime > 1000) {
                 this.stopForCollision();
-                this.score.add(5);
+                this.score.reduce(5);
                 this.lastCollisionTime = currentTime;
             }
-            
+
         }
     }
 
     stopForCollision() {
         if (!this.isStopped) {
             this.isStopped = true;
-            this.velocity = 0.015; 
+            this.velocity = 1.5;
             setTimeout(() => {
                 this.isStopped = false;
-                this.velocity = 0.05;
+                this.velocity = 3;
             }, 1000);
         }
     }
 
-    update() {
+    update(delta: number) {
         if (this.waypoints.length > 0) {
             const target = this.waypoints[this.currentWaypointIndex];
             const direction = new THREE.Vector3().subVectors(target, this.mesh.position);
             const distance = direction.length();
-
+    
             direction.y = 0; 
             direction.normalize();
-
+    
             const threshold = 1; 
             if (distance > threshold) {
-                this.body.position.x += direction.x * this.velocity;
-                this.body.position.z += direction.z * this.velocity;
-
+                this.body.position.x += direction.x * this.velocity * delta;
+                this.body.position.z += direction.z * this.velocity * delta;
+    
                 const desiredAngle = Math.atan2(direction.x, direction.z);
                 const currentQuat = new THREE.Quaternion(
                     this.body.quaternion.x,
@@ -67,7 +67,7 @@ class BotCar extends Car {
                 const targetQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, desiredAngle, 0));
                 currentQuat.slerp(targetQuat, 0.1);
                 this.body.quaternion.set(currentQuat.x, currentQuat.y, currentQuat.z, currentQuat.w);
-
+    
                 this.mesh.position.copy(this.body.position);
                 this.mesh.position.y -= 0.48;
                 this.mesh.quaternion.copy(this.body.quaternion);
@@ -79,6 +79,7 @@ class BotCar extends Car {
             }
         }
     }
+    
 }
 
 export default BotCar;

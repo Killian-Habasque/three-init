@@ -3,6 +3,7 @@ import * as CANNON from 'cannon-es';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { enableShadowForModel } from '../lib/shadow';
 import KeyboardControls from '../controls/KeyboardControls';
+import Score from './Score';
 
 class Car {
     public mesh: THREE.Object3D;
@@ -15,17 +16,19 @@ class Car {
     public steeringGroupFR: THREE.Group | null = null;
 
     private keyboardControls: KeyboardControls | null = null;
-    public velocity: number = 0.02;
+    public velocity: number = 0;
     public acceleration: number = 0.002;
     public maxSpeed: number = 0.2;
     public friction: number = 0.98;
     public rotationSpeedFactor: number = 0.25;
     public isReversing: boolean = false;
+    public score: Score;
+    private lastScoreUpdate: number = 0;
 
-    constructor(gltf: GLTF, position: CANNON.Vec3, enableControls: boolean = true) {
+    constructor(gltf: GLTF, position: CANNON.Vec3, enableControls: boolean = true, score: Score) {
         this.mesh = gltf.scene;
         enableShadowForModel(this.mesh);
-
+        this.score = score;
         const carShape = new CANNON.Box(new CANNON.Vec3(0.6, 0.5, 1.05));
         this.body = new CANNON.Body({ mass: 1 });
         this.body.addShape(carShape);
@@ -63,25 +66,32 @@ class Car {
         }
     }
 
-    update() {
-        this.velocity = Math.max(-this.maxSpeed, Math.min(this.velocity * this.friction, this.maxSpeed));
+    update(delta: number) {
+        this.velocity *= Math.pow(this.friction, delta * 60);
 
+        const currentTime = performance.now();
+        if (this.velocity < -0.09) {
+            if (currentTime - this.lastScoreUpdate >= 1000) {
+                this.score.add(1);
+                this.lastScoreUpdate = currentTime;
+            }
+        }
         const forward = new CANNON.Vec3(0, 0, -1);
         const rotatedForward = new CANNON.Quaternion();
         rotatedForward.copy(this.body.quaternion);
         rotatedForward.vmult(forward, forward);
 
-        this.body.position.x += forward.x * this.velocity;
-        this.body.position.z += forward.z * this.velocity;
+        this.body.position.x += forward.x * this.velocity * delta * 60;
+        this.body.position.z += forward.z * this.velocity * delta * 60;
 
-        const rotationSpeed = Math.abs(this.velocity) * this.rotationSpeedFactor;
+        const rotationSpeed = Math.abs(this.velocity) * this.rotationSpeedFactor * delta * 60;
         const turnQuaternion = new CANNON.Quaternion();
 
         if (this.keyboardControls) {
             if (this.keyboardControls.isKeyPressed('ArrowUp') || this.keyboardControls.isKeyPressed('z')) {
-                this.velocity -= this.acceleration;
+                this.velocity -= this.acceleration * delta * 60;
             } else if (this.keyboardControls.isKeyPressed('ArrowDown') || this.keyboardControls.isKeyPressed('s')) {
-                this.velocity += this.acceleration;
+                this.velocity += this.acceleration * delta * 60;
                 this.isReversing = true;
             } else {
                 this.isReversing = false;
@@ -100,6 +110,7 @@ class Car {
         this.mesh.position.y -= 0.48;
         this.mesh.quaternion.copy(this.body.quaternion);
     }
+
 
     updateWheels(delta: number) {
         const wheelRotationSpeed = this.velocity * delta * 350;

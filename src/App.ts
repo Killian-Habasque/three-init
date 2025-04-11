@@ -43,7 +43,7 @@ class App {
         // Cars
         this.sceneSetup.addModel('/assets/models/car/scene.glb', (gltf: GLTF) => {
             const carPosition = new CANNON.Vec3(0, 1, 1.5);
-            this.car = new Car(gltf, carPosition, true);
+            this.car = new Car(gltf, carPosition, true, this.score);
             this.car.setupWheels();
             this.physics.world.addBody(this.car.body);
             this.sceneSetup.scene.add(this.car.mesh);
@@ -156,7 +156,7 @@ class App {
         this.physics.update(delta);
 
         if (this.car) {
-            this.car.update();
+            this.car.update(delta);
             this.car.updateWheels(delta);
             if (this.cameraFollowEnabled) {
                 const carPosition = this.car.mesh.position;
@@ -166,7 +166,7 @@ class App {
         }
 
         this.botsCar.forEach(carBot => {
-            carBot.update();
+            carBot.update(delta);
         });
 
         // this.cube.update();

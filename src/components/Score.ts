@@ -21,9 +21,23 @@ class Score {
         this.score += points;
         this.updateDisplay();
     }
+    public reduce(points: number) {
+        this.score -= points;
+        this.updateDisplay();
+    }
 
-    private updateDisplay() {
+    public updateDisplay() {
         this.scoreElement.innerText = `Score: ${this.score}`;
+    }
+
+    
+    public increment() {
+        this.score += 1; 
+        console.log(`Score: ${this.score}`); 
+    }
+
+    public getScore() {
+        return this.score;
     }
 }
 
