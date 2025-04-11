@@ -37,7 +37,6 @@ class Car {
         if (enableControls) {
             this.keyboardControls = new KeyboardControls();
         }
-
     }
 
     setupWheels() {

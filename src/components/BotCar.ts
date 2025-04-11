@@ -16,6 +16,7 @@ class BotCar extends Car {
         super(gltf, position, false);
         this.waypoints = waypoints;
         this.score = score;
+        this.body.userData = { type: 'carBot' };
         this.body.addEventListener('collide', this.onCollision.bind(this));
     }
 

@@ -30,6 +30,7 @@ class App {
     // private cube: Cube;
     private cameraFollowEnabled: boolean = true;
     public score: Score;
+    private lastBotAddedAtScore: number = 0;
 
     constructor() {
         this.sceneSetup = new SceneSetup();
@@ -50,51 +51,9 @@ class App {
         });
 
 
-        this.sceneSetup.addModel('/assets/models/car/scene.glb', (gltf: GLTF) => {
-            const waypoints = [
-                new THREE.Vector3(14, 1, 1),
-                new THREE.Vector3(14, 1, 10.5),
-                new THREE.Vector3(-11, 1, 10.5),
-                new THREE.Vector3(-11, 1, 1),
-                new THREE.Vector3(-11, 1, 1)
-            ];
-            const car = new BotCar(gltf, new CANNON.Vec3(6, 1, 1), waypoints, this.score);
-            this.botsCar.push(car);
-            this.physics.world.addBody(car.body);
-            this.sceneSetup.scene.add(car.mesh);
-
-        });
-
-
-        this.sceneSetup.addModel('/assets/models/car/scene.glb', (gltf: GLTF) => {
-            const waypoints = [
-                new THREE.Vector3(16, 1, 1),
-                new THREE.Vector3(16, 1, -24),
-                new THREE.Vector3(-13, 1, -24),
-                new THREE.Vector3(-13, 1, 1),
-                new THREE.Vector3(-13, 1, 1)
-            ];
-            const car = new BotCar(gltf, new CANNON.Vec3(10, 1, 1), waypoints, this.score);
-            this.botsCar.push(car);
-            this.physics.world.addBody(car.body);
-            this.sceneSetup.scene.add(car.mesh);
-        });
-
-        this.sceneSetup.addModel('/assets/models/car/scene.glb', (gltf: GLTF) => {
-            const waypoints = [
-                new THREE.Vector3(-10.5, 1, -1.5),
-                new THREE.Vector3(-10.5, 1, -22),
-                new THREE.Vector3(14, 1, -22),
-                new THREE.Vector3(14, 1, -1.5),
-                new THREE.Vector3(14, 1, -1.5)
-            ];
-
-            const car = new BotCar(gltf, new CANNON.Vec3(-8, 1, -1.5), waypoints, this.score);
-            this.botsCar.push(car);
-            this.physics.world.addBody(car.body);
-            this.sceneSetup.scene.add(car.mesh);
-        });
-        
+        this.addCarBot(0);
+        this.addCarBot(1);
+        this.addCarBot(2);
         // Map
         this.sceneSetup.addModel('/assets/models/map/scene_min.glb', (gltf: GLTF) => {
             const map = gltf.scene;
@@ -132,7 +91,7 @@ class App {
 
         if (showGUI) {
             this.debugger = new CannonDebugger(this.sceneSetup.scene, this.physics.world);
-            
+
             const appGUI = new AppGUI(this.sceneSetup.getDirectionalLight(), this.debugger, (value: boolean) => {
                 this.cameraFollowEnabled = value;
             });
@@ -149,10 +108,68 @@ class App {
         this.sceneSetup.getRenderer().setSize(window.innerWidth, window.innerHeight);
     }
 
+    private addCarBot(index?: number | undefined) {
+        this.sceneSetup.addModel('/assets/models/car/scene.glb', (gltf: GLTF) => {
+            const waypointPatterns = [
+                [
+                    new THREE.Vector3(14, 1, 1),
+                    new THREE.Vector3(14, 1, 10.5),
+                    new THREE.Vector3(-11, 1, 10.5),
+                    new THREE.Vector3(-11, 1, 1),
+                    new THREE.Vector3(-11, 1, 1)
+                ],
+                [
+                    new THREE.Vector3(16, 1, 1),
+                    new THREE.Vector3(16, 1, -24),
+                    new THREE.Vector3(-13, 1, -24),
+                    new THREE.Vector3(-13, 1, 1),
+                    new THREE.Vector3(-13, 1, 1)
+                ],
+                [
+                    new THREE.Vector3(-10.5, 1, -1.5),
+                    new THREE.Vector3(-10.5, 1, -22),
+                    new THREE.Vector3(14, 1, -22),
+                    new THREE.Vector3(14, 1, -1.5),
+                    new THREE.Vector3(14, 1, -1.5)
+                ]
+            ];
+            const scenarioIndex = index ?? Math.floor(Math.random() * waypointPatterns.length)
+            const waypoints = waypointPatterns[scenarioIndex];
+
+            let startPosition;
+            switch (scenarioIndex) {
+                case 0:
+                    startPosition = new CANNON.Vec3(6, 4, 1);
+                    break;
+                case 1:
+                    startPosition = new CANNON.Vec3(10, 4, 1);
+                    break;
+                case 2:
+                    startPosition = new CANNON.Vec3(-8, 4, -1.5);
+                    break;
+                default:
+                    startPosition = new CANNON.Vec3(6, 4, 1);
+            }
+
+            const car = new BotCar(gltf, startPosition, waypoints, this.score);
+            this.botsCar.push(car);
+            this.physics.world.addBody(car.body);
+            this.sceneSetup.scene.add(car.mesh);
+        });
+    }
+
     animate() {
         this.controls.update();
         const delta = this.clock.getDelta();
         this.physics.update(delta);
+
+
+        const currentScore = this.score.getScore();
+        if (currentScore >= 5 && currentScore % 5 === 0 && currentScore > this.lastBotAddedAtScore) {
+            console.log("New bot !!!")
+            this.addCarBot();
+            this.lastBotAddedAtScore = currentScore;
+        }
 
         if (this.car) {
             this.car.update(delta);
