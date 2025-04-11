@@ -150,7 +150,7 @@ class App {
             this.lastBotAddedAtScore = currentScore;
             this.score.addWave();
             const waveNumber = this.score.getWave();
-            this.waveNotification.show(`Wave ${waveNumber}: New bot appears !`);
+            this.waveNotification.show(`Wave ${waveNumber}: 🚗 New bot appears !`);
         }
         if (this.car) {
             this.car.update(delta);

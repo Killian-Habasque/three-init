@@ -13,7 +13,7 @@ class HitMarker {
             window.clearTimeout(this.timeoutId);
         }
 
-        this.hitMarkerElement.innerText = text;
+        this.hitMarkerElement.innerText = text + "💥";
         this.hitMarkerElement.style.opacity = '1';
 
         const startY = 50;
