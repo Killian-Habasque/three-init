@@ -8,11 +8,11 @@ import BarrierBox from './components/BarrierBox';
 import { enableShadowForModel } from '../src/lib/shadow';
 import Car from './components/Car';
 import BarrierPlane from './components/BarrierPlane';
-import Cube from './components/Cube';
 import * as CANNON from 'cannon-es';
 import AppGUI from './helpers/GUI';
 import BotCar from './components/BotCar';
 import Score from './components/Score';
+import WaveNotification from './components/WaveNotification';
 
 const showGUI = import.meta.env.VITE_SHOW_GUI === 'true';
 
@@ -27,15 +27,16 @@ class App {
     private debugger: CannonDebugger | undefined;
     private botsCar: BotCar[] = [];
     private car: Car | undefined;
-    // private cube: Cube;
     private cameraFollowEnabled: boolean = true;
     public score: Score;
     private lastBotAddedAtScore: number = 0;
+    private waveNotification: WaveNotification;
 
     constructor() {
         this.sceneSetup = new SceneSetup();
         this.sceneSetup.addDirectionalLight();
         this.score = new Score();
+        this.waveNotification = new WaveNotification();
 
         this.controls = new CameraControls(this.sceneSetup.getCamera(), this.sceneSetup.getRenderer().domElement);
 
@@ -81,13 +82,6 @@ class App {
         // Barrier plane
         const barrierPlane = new BarrierPlane();
         this.physics.world.addBody(barrierPlane.body);
-
-        // Cube
-        // const cubePosition = new THREE.Vector3(-3, 3, 0); 
-        // const cubeSize = new THREE.Vector3(1, 1, 1);
-        // this.cube = new Cube(cubePosition, cubeSize);
-        // this.sceneSetup.scene.add(this.cube.mesh);
-        // this.physics.world.addBody(this.cube.body); 
 
         if (showGUI) {
             this.debugger = new CannonDebugger(this.sceneSetup.scene, this.physics.world);
@@ -165,10 +159,13 @@ class App {
 
 
         const currentScore = this.score.getScore();
-        if (currentScore >= 5 && currentScore % 5 === 0 && currentScore > this.lastBotAddedAtScore) {
+        if (currentScore >= 10 && currentScore % 10 === 0 && currentScore > this.lastBotAddedAtScore) {
             console.log("New bot !!!")
             this.addCarBot();
             this.lastBotAddedAtScore = currentScore;
+            this.score.addWave();
+            const waveNumber = this.score.getWave();
+            this.waveNotification.show(`Wave ${waveNumber}: New bot appears !`);
         }
 
         if (this.car) {

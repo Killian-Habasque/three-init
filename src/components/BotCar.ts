@@ -3,6 +3,7 @@ import * as CANNON from 'cannon-es';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import Car from './Car';
 import Score from './Score';
+import HitMarker from './HitMarker';
 
 class BotCar extends Car {
     private waypoints: THREE.Vector3[];
@@ -11,6 +12,7 @@ class BotCar extends Car {
     private isStopped: boolean = false;
     public score: Score;
     private lastCollisionTime: number = 0;
+    private hitMarker: HitMarker;
 
     constructor(gltf: GLTF, position: CANNON.Vec3, waypoints: THREE.Vector3[], score: Score) {
         super(gltf, position, false);
@@ -18,6 +20,7 @@ class BotCar extends Car {
         this.score = score;
         this.body.userData = { type: 'carBot' };
         this.body.addEventListener('collide', this.onCollision.bind(this));
+        this.hitMarker = new HitMarker();
     }
 
     onCollision(event: any) {
@@ -27,6 +30,7 @@ class BotCar extends Car {
             if (currentTime - this.lastCollisionTime > 1000) {
                 this.stopForCollision();
                 this.score.reduce(5);
+                this.hitMarker.show('-5');
                 this.lastCollisionTime = currentTime;
             }
 

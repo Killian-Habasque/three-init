@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import Cube from '../components/Cube';
 import Plane from '../components/Plane';
 import ModelLoader from '../components/ModelLoader';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -43,13 +42,6 @@ class SceneSetup {
         
         return this.directionalLight;
     }
-
-    addCube() {
-        const cube = new Cube();
-        this.scene.add(cube.mesh);
-        return cube.mesh;
-    }
-
     addPlane() {
         const plane = new Plane();
         this.scene.add(plane.mesh);
