@@ -7,7 +7,7 @@ import Score from './Score';
 class BotCar extends Car {
     private waypoints: THREE.Vector3[];
     private currentWaypointIndex: number = 0;
-    public velocity: number = 3;
+    public velocity: number = 4;
     private isStopped: boolean = false;
     public score: Score;
     private lastCollisionTime: number = 0;
@@ -35,10 +35,10 @@ class BotCar extends Car {
     stopForCollision() {
         if (!this.isStopped) {
             this.isStopped = true;
-            this.velocity = 1.5;
+            this.velocity = 2;
             setTimeout(() => {
                 this.isStopped = false;
-                this.velocity = 3;
+                this.velocity = 4;
             }, 1000);
         }
     }

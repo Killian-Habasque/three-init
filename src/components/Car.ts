@@ -17,8 +17,7 @@ class Car {
 
     private keyboardControls: KeyboardControls | null = null;
     public velocity: number = 0;
-    public acceleration: number = 0.002;
-    public maxSpeed: number = 0.2;
+    public acceleration: number = 0.0035;
     public friction: number = 0.98;
     public rotationSpeedFactor: number = 0.25;
     public isReversing: boolean = false;

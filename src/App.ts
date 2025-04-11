@@ -151,8 +151,7 @@ class App {
 
     animate() {
         this.controls.update();
-        const delta = 1 / 60;
-
+        const delta = this.clock.getDelta();
         this.physics.update(delta);
 
         if (this.car) {
