@@ -4,18 +4,7 @@ class HitMarker {
 
     constructor() {
         this.hitMarkerElement = document.createElement('div');
-        this.hitMarkerElement.style.position = 'absolute';
-        this.hitMarkerElement.style.top = '50%';
-        this.hitMarkerElement.style.left = '50%';
-        this.hitMarkerElement.style.transform = 'translate(-50%, -50%)';
-        this.hitMarkerElement.style.color = 'red';
-        this.hitMarkerElement.style.fontSize = '30px';
-        this.hitMarkerElement.style.fontWeight = 'bold';
-        this.hitMarkerElement.style.opacity = '0';
-        this.hitMarkerElement.style.transition = 'opacity 0.5s ease-out';
-        this.hitMarkerElement.style.userSelect = 'none';
-        this.hitMarkerElement.style.pointerEvents = 'none';
-        this.hitMarkerElement.style.textShadow = '2px 2px 4px rgba(0, 0, 0, 0.5)';
+        this.hitMarkerElement.classList.add('hit-marker');
         document.body.appendChild(this.hitMarkerElement);
     }
 

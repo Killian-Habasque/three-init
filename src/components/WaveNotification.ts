@@ -4,20 +4,7 @@ class WaveNotification {
 
     constructor() {
         this.notificationElement = document.createElement('div');
-        this.notificationElement.style.position = 'absolute';
-        this.notificationElement.style.top = '20%';
-        this.notificationElement.style.left = '50%';
-        this.notificationElement.style.transform = 'translate(-50%, -50%)';
-        this.notificationElement.style.color = 'white';
-        this.notificationElement.style.fontSize = '30px';
-        this.notificationElement.style.fontWeight = 'bold';
-        this.notificationElement.style.opacity = '0';
-        this.notificationElement.style.transition = 'opacity 0.5s ease-out';
-        this.notificationElement.style.userSelect = 'none';
-        this.notificationElement.style.pointerEvents = 'none';
-        this.notificationElement.style.backgroundColor = 'rgba(0, 0, 0, 0.4)';
-        this.notificationElement.style.padding = '10px 20px';
-        this.notificationElement.style.borderRadius = '5px';
+        this.notificationElement.classList.add('game-notification');
         document.body.appendChild(this.notificationElement);
     }
 

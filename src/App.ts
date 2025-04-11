@@ -43,7 +43,7 @@ class App {
 
         this.addCar()
         this.addMap()
-        this.addCarBot(3);
+        this.addCarBot();
         // this.addCarBot(2);
 
         if (showGUI) {

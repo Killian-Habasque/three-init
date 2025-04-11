@@ -14,6 +14,10 @@ class BotCar extends Car {
     private lastCollisionTime: number = 0;
     private hitMarker: HitMarker;
 
+    private mixer: THREE.AnimationMixer | null = null;
+    private animations: THREE.AnimationClip[] = [];
+    private spawnAnimation: THREE.AnimationAction | null = null;
+
     constructor(gltf: GLTF, position: CANNON.Vec3, waypoints: THREE.Vector3[], score: Score) {
         super(gltf, position, false);
         this.waypoints = waypoints;
@@ -21,6 +25,7 @@ class BotCar extends Car {
         this.body.userData = { type: 'carBot' };
         this.body.addEventListener('collide', this.onCollision.bind(this));
         this.hitMarker = new HitMarker();
+        this.setupAnimations(gltf);
     }
 
     onCollision(event: any) {
@@ -51,9 +56,27 @@ class BotCar extends Car {
             }, 1000);
         }
     }
+    setupAnimations(gltf: GLTF) {
+        if (gltf.animations && gltf.animations.length > 0) {
+            this.animations = gltf.animations;
+            this.mixer = new THREE.AnimationMixer(this.mesh);
 
+            if (this.animations.length > 0) {
+                const spawnClip = this.animations[0];
+                const trimmedClip = THREE.AnimationUtils.subclip(spawnClip, 'trimmedSpawn', 7 * 30, 10 * 30); 
+                
+                this.spawnAnimation = this.mixer.clipAction(trimmedClip);
+                this.spawnAnimation.setLoop(THREE.LoopOnce, 1);
+                this.spawnAnimation.clampWhenFinished = true;
+                this.spawnAnimation.play();
+            }
+        }
+    }
     update(delta: number) {
         if (this.waypoints.length > 0) {
+            if (this.mixer) {
+                this.mixer.update(delta * 2);
+            }
             const target = this.waypoints[this.currentWaypointIndex];
             const direction = new THREE.Vector3().subVectors(target, this.mesh.position);
             const distance = direction.length();

@@ -3,23 +3,20 @@
 
 <head>
     <meta charset="utf-8">
-    <title>My first three.js app</title>
-    <style>
-        body {
-            margin: 0;
-        }
-    </style>
+    <title>Car Racing Game</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <div id="landing-page">
+        <img src="./assets/images/car.png">
+        <h1>Waves car game</h1>
+        <p>Drive your car around the track and avoid other vehicles!</p>
+        <button id="start-button">START GAME</button>
+    </div>
+    <div id="game-container">
+    </div>
     <script type="module" src="/src/main.ts"></script>
 </body>
-<style>
-    body,
-    canvas {
-        overflow: hidden;
-        font-family: 'Poppins', sans-serif;
-    }
-</style>
 
 </html>

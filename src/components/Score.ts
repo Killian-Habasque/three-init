@@ -8,11 +8,7 @@ class Score {
         this.wave = 1;
 
         this.scoreElement = document.createElement('div');
-        this.scoreElement.style.position = 'absolute';
-        this.scoreElement.style.top = '10px';
-        this.scoreElement.style.left = '10px';
-        this.scoreElement.style.color = 'white';
-        this.scoreElement.style.fontSize = '24px';
+        this.scoreElement.classList.add('game-score');
         document.body.appendChild(this.scoreElement);
 
         this.updateDisplay();
