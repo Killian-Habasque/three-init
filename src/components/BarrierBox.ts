@@ -28,7 +28,6 @@ class BarrierBox {
             if (currentTime - this.gameStartTime < 2000) {
                 return;
             }
-
             if (currentTime - this.lastCollisionTime > 1000) {
                 this.score.reduce(1);
                 this.hitMarker.show('-1');

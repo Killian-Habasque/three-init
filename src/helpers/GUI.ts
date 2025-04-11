@@ -8,7 +8,6 @@ class AppGUI {
 
     constructor( directionalLight: THREE.DirectionalLight, debuggerInstance: any, cameraFollowCallback: (value: boolean) => void) {
         this.gui = new GUI();
-        // this.setupCubeFolder(cube);
         this.setupLightFolder(directionalLight);
         this.setupDebuggerToggle(debuggerInstance);
         this.cameraFollowEnabled = true;

@@ -20,9 +20,7 @@ class App {
     private sceneSetup: SceneSetup;
     private controls: CameraControls;
     private clock = new THREE.Clock();
-
     private cameraOffset: THREE.Vector3 = new THREE.Vector3(0, 6, -7);
-
     private physics: Physics;
     private debugger: CannonDebugger | undefined;
     private botsCar: BotCar[] = [];
