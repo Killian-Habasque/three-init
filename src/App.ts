@@ -34,25 +34,21 @@ class App {
 
     constructor() {
         this.sceneSetup = new SceneSetup();
-        this.sceneSetup.addDirectionalLight();
+        this.controls = new CameraControls(this.sceneSetup.getCamera(), this.sceneSetup.getRenderer().domElement);
+        this.physics = new Physics();
         this.score = new Score();
         this.waveNotification = new WaveNotification();
 
-        this.controls = new CameraControls(this.sceneSetup.getCamera(), this.sceneSetup.getRenderer().domElement);
-
-        this.physics = new Physics();
+        this.sceneSetup.addDirectionalLight();
 
         this.addCar()
         this.addMap()
-        this.addCarBot(0);
-        this.addCarBot(1);
-        this.addCarBot(2);
-
+        this.addCarBot(3);
+        // this.addCarBot(2);
 
         if (showGUI) {
             this.debugger = new CannonDebugger(this.sceneSetup.scene, this.physics.world);
-
-            const appGUI = new AppGUI(this.sceneSetup.getDirectionalLight(), this.debugger, (value: boolean) => {
+            new AppGUI(this.sceneSetup.getDirectionalLight(), this.debugger, (value: boolean) => {
                 this.cameraFollowEnabled = value;
             });
         }
@@ -72,7 +68,6 @@ class App {
 
     }
     private addMap() {
-        // Map
         this.sceneSetup.addModel('/assets/models/map/scene_min.glb', (gltf: GLTF) => {
             const map = gltf.scene;
             map.position.set(0, -3.4, 0);
@@ -82,21 +77,18 @@ class App {
             this.sceneSetup.scene.add(map);
         });
 
-        // Barrier blocks
         const barriers = [
-            { position: new CANNON.Vec3(1.5, 4, 5.5), size: new CANNON.Vec3(11, 4, 3.5) },
-            { position: new CANNON.Vec3(1.5, 4, -12), size: new CANNON.Vec3(11, 4, 9) },
+            { position: new CANNON.Vec3(1.7, 4, 5.5), size: new CANNON.Vec3(10.7, 4, 3.5) },
+            { position: new CANNON.Vec3(1.7, 4, -12), size: new CANNON.Vec3(10.7, 4, 8.5) },
             { position: new CANNON.Vec3(1.5, 4, 16), size: new CANNON.Vec3(20, 4, 2) },
-            { position: new CANNON.Vec3(1.5, 4, -27), size: new CANNON.Vec3(20, 4, 2) },
-            { position: new CANNON.Vec3(21, 4, -15), size: new CANNON.Vec3(4, 4, 30) },
+            { position: new CANNON.Vec3(1.5, 4, -27.5), size: new CANNON.Vec3(20, 4, 2) },
+            { position: new CANNON.Vec3(21.5, 4, -15), size: new CANNON.Vec3(4, 4, 30) },
             { position: new CANNON.Vec3(-18, 4, -15), size: new CANNON.Vec3(4, 4, 30) }
         ];
         barriers.forEach(barrier => {
             const barrierBox = new BarrierBox(barrier.position, barrier.size, this.score);
             this.physics.world.addBody(barrierBox.body);
         });
-
-        // Barrier plane
         const barrierPlane = new BarrierPlane();
         this.physics.world.addBody(barrierPlane.body);
     }
@@ -108,43 +100,41 @@ class App {
                     new THREE.Vector3(14, 1, 1),
                     new THREE.Vector3(14, 1, 10.5),
                     new THREE.Vector3(-11, 1, 10.5),
-                    new THREE.Vector3(-11, 1, 1),
                     new THREE.Vector3(-11, 1, 1)
                 ],
                 [
                     new THREE.Vector3(16, 1, 1),
                     new THREE.Vector3(16, 1, -24),
                     new THREE.Vector3(-13, 1, -24),
-                    new THREE.Vector3(-13, 1, 1),
                     new THREE.Vector3(-13, 1, 1)
                 ],
                 [
                     new THREE.Vector3(-10.5, 1, -1.5),
                     new THREE.Vector3(-10.5, 1, -22),
                     new THREE.Vector3(14, 1, -22),
-                    new THREE.Vector3(14, 1, -1.5),
                     new THREE.Vector3(14, 1, -1.5)
+                ],
+                [
+                    new THREE.Vector3(-13, 1, -1.5),
+                    new THREE.Vector3(-13, 1, 13),
+                    new THREE.Vector3(16, 1, 13),
+                    new THREE.Vector3(16, 1, -1.5)
                 ]
             ];
             const scenarioIndex = index ?? Math.floor(Math.random() * waypointPatterns.length)
             const waypoints = waypointPatterns[scenarioIndex];
-
-            let startPosition;
-            switch (scenarioIndex) {
-                case 0:
-                    startPosition = new CANNON.Vec3(6, 4, 1);
-                    break;
-                case 1:
-                    startPosition = new CANNON.Vec3(10, 4, 1);
-                    break;
-                case 2:
-                    startPosition = new CANNON.Vec3(-8, 4, -1.5);
-                    break;
-                default:
-                    startPosition = new CANNON.Vec3(6, 4, 1);
+            
+            const randomWaypointIndex = Math.floor(Math.random() * waypoints.length);
+            const randomWaypoint = waypoints[randomWaypointIndex];
+            const startPosition = new CANNON.Vec3(randomWaypoint.x, 6, randomWaypoint.z);
+            const nextIndex = (randomWaypointIndex + 1) % waypoints.length;
+            const reorderedWaypoints = [];
+            for (let i = 0; i < waypoints.length; i++) {
+                const index = (nextIndex + i) % waypoints.length;
+                reorderedWaypoints.push(waypoints[index]);
             }
 
-            const car = new BotCar(gltf, startPosition, waypoints, this.score);
+            const car = new BotCar(gltf, startPosition, reorderedWaypoints, this.score);
             this.botsCar.push(car);
             this.physics.world.addBody(car.body);
             this.sceneSetup.scene.add(car.mesh);

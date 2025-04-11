@@ -35,12 +35,16 @@ class BotCar extends Car {
             }
 
         }
+
+        if (event.body.userData && event.body.userData.type === 'carBot') {
+            this.stopForCollision();
+        }
     }
 
     stopForCollision() {
         if (!this.isStopped) {
             this.isStopped = true;
-            this.velocity = 2;
+            this.velocity = 1;
             setTimeout(() => {
                 this.isStopped = false;
                 this.velocity = 4;
@@ -53,15 +57,15 @@ class BotCar extends Car {
             const target = this.waypoints[this.currentWaypointIndex];
             const direction = new THREE.Vector3().subVectors(target, this.mesh.position);
             const distance = direction.length();
-    
-            direction.y = 0; 
+
+            direction.y = 0;
             direction.normalize();
-    
-            const threshold = 1; 
+
+            const threshold = 1;
             if (distance > threshold) {
                 this.body.position.x += direction.x * this.velocity * delta;
                 this.body.position.z += direction.z * this.velocity * delta;
-    
+
                 const desiredAngle = Math.atan2(direction.x, direction.z);
                 const currentQuat = new THREE.Quaternion(
                     this.body.quaternion.x,
@@ -72,19 +76,19 @@ class BotCar extends Car {
                 const targetQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, desiredAngle, 0));
                 currentQuat.slerp(targetQuat, 0.1);
                 this.body.quaternion.set(currentQuat.x, currentQuat.y, currentQuat.z, currentQuat.w);
-    
+
                 this.mesh.position.copy(this.body.position);
                 this.mesh.position.y -= 0.48;
                 this.mesh.quaternion.copy(this.body.quaternion);
             } else {
                 this.currentWaypointIndex++;
                 if (this.currentWaypointIndex >= this.waypoints.length) {
-                    this.currentWaypointIndex = 0; 
+                    this.currentWaypointIndex = 0;
                 }
             }
         }
     }
-    
+
 }
 
 export default BotCar;
