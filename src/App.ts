@@ -12,8 +12,9 @@ import Cube from './components/Cube';
 import * as CANNON from 'cannon-es';
 import AppGUI from './helpers/GUI';
 import BotCar from './components/BotCar';
+import Score from './components/Score';
 
-const showGUI = import.meta.env.VITE_SHOW_GUI === 'false';
+const showGUI = import.meta.env.VITE_SHOW_GUI === 'true';
 
 class App {
     private sceneSetup: SceneSetup;
@@ -28,10 +29,12 @@ class App {
     private car: Car | undefined;
     // private cube: Cube;
     private cameraFollowEnabled: boolean = true;
+    public score: Score;
 
     constructor() {
         this.sceneSetup = new SceneSetup();
         this.sceneSetup.addDirectionalLight();
+        this.score = new Score();
 
         this.controls = new CameraControls(this.sceneSetup.getCamera(), this.sceneSetup.getRenderer().domElement);
 
@@ -55,7 +58,7 @@ class App {
                 new THREE.Vector3(-11, 1, 1),
                 new THREE.Vector3(-11, 1, 1)
             ];
-            const car = new BotCar(gltf, new CANNON.Vec3(6, 1, 1), waypoints);
+            const car = new BotCar(gltf, new CANNON.Vec3(6, 1, 1), waypoints, this.score);
             this.botsCar.push(car);
             this.physics.world.addBody(car.body);
             this.sceneSetup.scene.add(car.mesh);
@@ -71,7 +74,7 @@ class App {
                 new THREE.Vector3(-13, 1, 1),
                 new THREE.Vector3(-13, 1, 1)
             ];
-            const car = new BotCar(gltf, new CANNON.Vec3(10, 1, 1), waypoints);
+            const car = new BotCar(gltf, new CANNON.Vec3(10, 1, 1), waypoints, this.score);
             this.botsCar.push(car);
             this.physics.world.addBody(car.body);
             this.sceneSetup.scene.add(car.mesh);
@@ -86,7 +89,7 @@ class App {
                 new THREE.Vector3(14, 1, -1.5)
             ];
 
-            const car = new BotCar(gltf, new CANNON.Vec3(-8, 1, -1.5), waypoints);
+            const car = new BotCar(gltf, new CANNON.Vec3(-8, 1, -1.5), waypoints, this.score);
             this.botsCar.push(car);
             this.physics.world.addBody(car.body);
             this.sceneSetup.scene.add(car.mesh);

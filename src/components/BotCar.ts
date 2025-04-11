@@ -2,23 +2,33 @@ import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import Car from './Car';
+import Score from './Score';
 
 class BotCar extends Car {
     private waypoints: THREE.Vector3[];
     private currentWaypointIndex: number = 0;
     public velocity: number = 0.05;
     private isStopped: boolean = false; 
+    public score: Score;
+    private lastCollisionTime: number = 0;
 
-    constructor(gltf: GLTF, position: CANNON.Vec3, waypoints: THREE.Vector3[]) {
+    constructor(gltf: GLTF, position: CANNON.Vec3, waypoints: THREE.Vector3[], score: Score) {
         super(gltf, position, false);
         this.waypoints = waypoints;
-
+        this.score = score;
         this.body.addEventListener('collide', this.onCollision.bind(this));
     }
 
     onCollision(event: any) {
         if (event.body.userData && event.body.userData.type === 'car') {
-            this.stopForCollision();
+            const currentTime = Date.now();
+
+            if (currentTime - this.lastCollisionTime > 1000) {
+                this.stopForCollision();
+                this.score.add(5);
+                this.lastCollisionTime = currentTime;
+            }
+            
         }
     }
 
